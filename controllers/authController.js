@@ -1,6 +1,6 @@
 const pool = require("../config/db");
 const bcrypt = require('bcrypt');
-
+const jwtGenerator = require('./../utils/jwtGenerator');
 
 exports.register = async (req, res, next) => {
     // desturucture the req.body (name, email, password)
@@ -23,8 +23,10 @@ exports.register = async (req, res, next) => {
     const newUser = await pool.query("INSERT INTO users (user_name, user_email, user_password) VALUES ($1, $2, $3) RETURNING *", 
     [name, email, bcryptPassword]);
 
-    res.json(newUser.rows[0]);  
     // generating our jwt token
+    const token = jwtGenerator(newUser.rows[0].user_id);
+
+    res.json({token});
 }
 
 exports.login = (req, res, next) => {
