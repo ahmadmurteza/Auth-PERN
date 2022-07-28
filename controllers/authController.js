@@ -9,7 +9,7 @@ exports.register = async (req, res, next) => {
     // check if user exist throw error
     const user = await pool.query("SELECT * FROM users WHERE user_email = $1", [email]);
     
-    if(user.rows.length !== 0) {
+    if(user.rows.length !== 0){
         return res.status(401).send("User already exist");
     }
 
@@ -29,6 +29,26 @@ exports.register = async (req, res, next) => {
     res.json({token});
 }
 
-exports.login = (req, res, next) => {
-    res.send("Login Route");
+exports.login = async (req, res, next) => {
+    // desturucture the req.body (name, email, password)
+    const {email, password} = req.body;
+
+    // check if user not exist throw error
+    const user = await pool.query("SELECT * FROM users WHERE user_email = $1", [email]);
+    
+    if(user.rows.length === 0){
+        return res.status(401).send("Password or Email is incorect");
+    }
+
+    // check password
+    const validPassword = await bcrypt.compare(password,user.rows[0].user_password);
+
+    if(!validPassword) {
+        return res.status(401).send("Password or Email is incorect");
+    }
+
+    // give jwt token
+    const token = jwtGenerator(user.rows[0].user_id);
+
+    res.json({token});
 }
