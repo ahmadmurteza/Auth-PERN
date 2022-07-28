@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // ROUTES //
-app.use('/api/auth', require('./routes/authRoute'));
+app.use('/auth', require('./routes/authRoute'));
 
 app.listen(PORT, () => {
     console.log(`Server running on Port ${PORT}`);
